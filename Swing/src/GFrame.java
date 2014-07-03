@@ -10,14 +10,26 @@ public class GFrame extends JFrame implements ActionListener {
 
     private String title;
 
+    private JPanel drawPanel;
+    private JPanel buttonPanel;
+
+    private JSlider slideSize;
+
+    private Polygon polygon;
+    private int[] xPolyArray;
+    private int[] yPolyArray;
+
     public GFrame(String title)
     {
         this.title = title;
         initialize();
 
+        drawPanel = generateDrawPanel();
+        buttonPanel = generateButtons();
+
         JPanel container = new JPanel();
-        container.add(addButtonPanel());
-        container.add(addDrawPanel());
+        container.add(buttonPanel);
+        container.add(drawPanel);
 
         add(container);
 
@@ -27,23 +39,41 @@ public class GFrame extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        System.out.println(e.getActionCommand());
+        if(e.getActionCommand().equals("Add"))
+        {
+            for(int i = 0; i < xPolyArray.length; i++) {
+                xPolyArray[i] += slideSize.getValue();
+                yPolyArray[i] += slideSize.getValue();
+            }
+            drawPanel.repaint();
+        }
+        else if(e.getActionCommand().equals("Subtract"))
+        {
+            for(int i = 0; i < xPolyArray.length; i++) {
+                xPolyArray[i] -= slideSize.getValue();
+                yPolyArray[i] -= slideSize.getValue();
+            }
+            drawPanel.repaint();
+        }
     }
 
-    private JPanel addDrawPanel()
+    private JPanel generateDrawPanel()
     {
+        xPolyArray = new int[]{100, 120, 150};
+        yPolyArray = new int[]{150, 120, 130};
 
-        int xPoly[] = {100, 120, 150};
-        int yPoly[] = {150, 120, 130};
-
-        final Polygon polygon = new Polygon(xPoly, yPoly, xPoly.length);
-
-        JPanel panel = new JPanel() {
+        JPanel returnPanel = new JPanel()
+        {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 g.setColor(Color.BLACK);
+
+                //TODO: improve new Polygon()
+                polygon = new Polygon(xPolyArray, yPolyArray, xPolyArray.length);
+
                 g.drawPolygon(polygon);
+                g.dispose();
             }
             @Override
             public Dimension getPreferredSize() {
@@ -51,26 +81,27 @@ public class GFrame extends JFrame implements ActionListener {
             }
         };
 
-        panel.setBackground(new Color(200, 200, 200));
-
-        return panel;
+        returnPanel.setBackground(new Color(200, 200, 200));
+        return returnPanel;
     }
 
-    private JPanel addButtonPanel()
+    private JPanel generateButtons()
     {
-        JPanel panel = new JPanel();
+        JPanel objectPanel = new JPanel();
 
-        JButton button1 = new JButton("Button 1");
-        JButton button2 = new JButton("Button 2");
+        JButton button1 = new JButton("Add");
+        JButton button2 = new JButton("Subtract");
+        slideSize = new JSlider();
 
         button1.addActionListener(this);
         button2.addActionListener(this);
 
-        panel.add(button1);
-        panel.add(button2);
+        objectPanel.add(button1);
+        objectPanel.add(button2);
+        objectPanel.add(slideSize);
 
-        panel.setBackground(new Color(200, 200, 250));
-        return panel;
+        objectPanel.setBackground(new Color(200, 200, 250));
+        return objectPanel;
     }
 
     private void initialize()
