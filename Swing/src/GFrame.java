@@ -7,19 +7,25 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**
- * Created by Phil on 02.07.14.
+ * Created by Philipp Friese
  */
-public class GFrame extends JFrame implements ActionListener {
+public class GFrame extends JFrame implements ActionListener
+{
+    private static final int CIRCLE_RADIUS = 50;
+
+    private static final int DRAW_WIDTH = 400;
+    private static final int DRAW_HEIGHT = 400;
+
     private JPanel drawPanel;
-    private JComboBox<Circle> polygonList;
+    private JComboBox<Circle> circleComboBox;
     private ArrayList<Circle> circleList;
 
     private JSlider sliderHorizontal, sliderVertical;
     private Circle selectedCircle;
 
-    public GFrame(String title)
+    public GFrame(String title, int width, int height)
     {
-        initialize(title);
+        initialize(title, width, height);
 
         drawPanel = generateDrawPanel();
         JPanel objectPanel = generateObjects();
@@ -36,12 +42,6 @@ public class GFrame extends JFrame implements ActionListener {
     private JPanel generateDrawPanel()
     {
         circleList = new ArrayList<Circle>();
-        Circle circle = new Circle();
-        circleList.add(circle);
-        polygonList.addItem(circle);
-
-        final int width = 200;
-        final int height = 200;
 
         JPanel returnPanel = new JPanel()
         {
@@ -52,10 +52,8 @@ public class GFrame extends JFrame implements ActionListener {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setColor(Color.BLACK);
 
-                for(Circle circle : circleList)
-                {
-                    if(circle == selectedCircle)
-                    {
+                for(Circle circle : circleList) {
+                    if(circle == selectedCircle) {
                         g2.setColor(Color.RED);
                         g2.drawOval(circle.x, circle.y, circle.radius, circle.radius);
                         g2.setColor(Color.BLACK);
@@ -67,26 +65,29 @@ public class GFrame extends JFrame implements ActionListener {
             }
             @Override
             public Dimension getPreferredSize() {
-                return new Dimension(width, height);
+                return new Dimension(DRAW_WIDTH, DRAW_HEIGHT);
             }
         };
-        returnPanel.setSize(width, height);
+        returnPanel.setSize(DRAW_WIDTH, DRAW_HEIGHT);
         returnPanel.setBackground(new Color(200, 200, 200));
         return returnPanel;
     }
 
     private JPanel generateObjects()
     {
+        Circle circle = new Circle();
+        circleList.add(circle);
+        circleComboBox.addItem(circle);
         JPanel objectPanel = new JPanel();
 
         sliderHorizontal.setName("sliderHorizontal");
         sliderHorizontal.setMinimum(0);
-        sliderHorizontal.setMaximum(drawPanel.getWidth());
+        sliderHorizontal.setMaximum(drawPanel.getWidth() - CIRCLE_RADIUS);
         sliderHorizontal.addChangeListener(new SliderListener());
 
         sliderVertical.setName("sliderVertical");
         sliderVertical.setMinimum(0);
-        sliderVertical.setMaximum(drawPanel.getHeight());
+        sliderVertical.setMaximum(drawPanel.getHeight() - CIRCLE_RADIUS);
         sliderVertical.setInverted(true);
         sliderVertical.addChangeListener(new SliderListener());
 
@@ -97,20 +98,20 @@ public class GFrame extends JFrame implements ActionListener {
         objectPanel.add(sliderVertical);
         objectPanel.add(addCircle);
 
-        objectPanel.add(polygonList);
+        objectPanel.add(circleComboBox);
 
         objectPanel.setBackground(new Color(200, 200, 250));
         return objectPanel;
     }
 
-    private void initialize(String title)
+    private void initialize(String title, int width, int height)
     {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle(title);
-        setPreferredSize(new Dimension(500, 400));
+        setPreferredSize(new Dimension(width, height));
 
-        polygonList = new JComboBox<Circle>();
-        polygonList.addActionListener(this);
+        circleComboBox = new JComboBox<Circle>();
+        circleComboBox.addActionListener(this);
 
         sliderHorizontal = new JSlider(JSlider.HORIZONTAL);
         sliderVertical = new JSlider(JSlider.VERTICAL);
@@ -128,19 +129,16 @@ public class GFrame extends JFrame implements ActionListener {
         if(e.getSource() instanceof JComboBox) {
             JComboBox cb = (JComboBox) e.getSource();
             selectedCircle = (Circle) cb.getSelectedItem();
-
             sliderHorizontal.setValue(selectedCircle.x);
             sliderVertical.setValue(selectedCircle.y);
         }
-        else if(e.getSource() instanceof JButton)
-        {
+        else if(e.getSource() instanceof JButton) {
             JButton b = (JButton) e.getSource();
-            if(b.getActionCommand().equals("Add Circle"))
-            {
+            if(b.getActionCommand().equals("Add Circle")) {
                 Circle circle = new Circle();
                 circleList.add(circle);
-                polygonList.addItem(circle);
-                polygonList.setSelectedItem(circle);
+                circleComboBox.addItem(circle);
+                circleComboBox.setSelectedItem(circle);
                 repaint();
             }
         }
@@ -149,24 +147,12 @@ public class GFrame extends JFrame implements ActionListener {
     class Circle
     {
         String name;
-        public int x, y, radius;
-        public int xOrig, yOrig;
-        public Circle(int x, int y, int radius, String name)
-        {
-            this.x = x;
-            this.xOrig = x;
-            this.y = y;
-            this.yOrig = y;
-            this.radius = radius;
-            this.name = name;
-        }
+        int x, y, radius;
         public Circle()
         {
             x = 0;
             y = 0;
-            xOrig = 0;
-            yOrig = 0;
-            radius = 50;
+            radius = CIRCLE_RADIUS;
             name = "Circle " + (circleList.size() + 1);
         }
         @Override
@@ -182,12 +168,12 @@ public class GFrame extends JFrame implements ActionListener {
 			JSlider source = (JSlider)e.getSource();
             if(source.getName().equals("sliderHorizontal"))
             {
-                selectedCircle.x = selectedCircle.xOrig + source.getValue();
+                selectedCircle.x = source.getValue();
                 drawPanel.repaint();
             }
             else if(source.getName().equals("sliderVertical"))
             {
-                selectedCircle.y = selectedCircle.yOrig + source.getValue();
+                selectedCircle.y = source.getValue();
                 drawPanel.repaint();
             }
 		}    
