@@ -55,13 +55,13 @@ public class GFrame extends JFrame implements ActionListener
                 for(Circle circle : circleList) {
                     if(circle == selectedCircle) {
                         g2.setColor(Color.RED);
-                        g2.drawOval(circle.x, circle.y, circle.radius, circle.radius);
+                        g.drawOval(circle.x, circle.y, circle.radius, circle.radius);
                         g2.setColor(Color.BLACK);
                     }
                     else
                         g2.drawOval(circle.x, circle.y, circle.radius, circle.radius);
                 }
-                g2.dispose();
+//                g2.dispose();
             }
             @Override
             public Dimension getPreferredSize() {
@@ -96,9 +96,9 @@ public class GFrame extends JFrame implements ActionListener
 
         objectPanel.add(sliderHorizontal);
         objectPanel.add(sliderVertical);
-        objectPanel.add(addCircle);
 
-        objectPanel.add(circleComboBox);
+//        objectPanel.add(addCircle);
+//        objectPanel.add(circleComboBox);
 
         objectPanel.setBackground(new Color(200, 200, 250));
         return objectPanel;

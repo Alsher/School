@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Fractal">
+    <output-path>$PROJECT_DIR$/out/artifacts/Fractal</output-path>
+    <root id="archive" name="Fractal.jar">
+      <element id="module-output" name="AlphaAsShit" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slick-util/slick-util.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slick-util/lwjgl.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/lwjgl-2.9.1/jar/lwjgl.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/lwjgl-2.9.1/jar/lwjgl_util.jar" path-in-jar="/" />
+      <element id="directory" name="natives">
+        <element id="dir-copy" path="$PROJECT_DIR$/lib/natives" />
+      </element>
+    </root>
+  </artifact>
+</component>
