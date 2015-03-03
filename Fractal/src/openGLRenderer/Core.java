@@ -2,18 +2,22 @@ package openGLRenderer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Core {
 
     private static Fractal fractal;
     private static JFrame window;
 
-    private static JLabel frameLabel, iterationLabel, xOffset, yOffset;
+    private static JLabel frameLabel, iterationLabel, xOffset, yOffset, zoom, highRes;
+    private static JPanel container;
+    private static JButton toggleHR, toggleTexture;
 
     public static void run()
     {
         boolean isRunning = true;
-        Window.createDisplay(1000, 1000, "Fractal");
+        GLWindow.createDisplay(1000, 1000, "Fractal");
 
         fractal = new Fractal();
         window = new JFrame();
@@ -49,11 +53,12 @@ public class Core {
             {
                 render = true;
 
-                if(Window.isCloseRequested())
+                if(GLWindow.isCloseRequested())
                     isRunning = false;
 
                 fractal.input();
                 Input.update();
+                fractal.update();
 
                 unprocessedTime -= frameTime;
             }
@@ -61,7 +66,7 @@ public class Core {
             if(render)
             {
                 fractal.render();
-                Window.render();
+                GLWindow.render();
                 frames++;
                 updateConsole(0);
             }
@@ -83,13 +88,15 @@ public class Core {
         iterationLabel.setText("Iteration: " + String.valueOf(fractal.getIteration()));
         xOffset.setText("x Offset: " + String.valueOf(fractal.getxOffset()));
         yOffset.setText("y Offset: " + String.valueOf(fractal.getyOffset()));
+        zoom.setText("Zoom: " + String.valueOf(fractal.getZoom()));
+        highRes.setText("HighRes: " + fractal.getHighRes());
         window.pack();
         window.setVisible(true);
     }
 
     private static void initializeConsole()
     {
-        int width = 160;
+        int width = 450;
         int height = 200;
         window.setResizable(false);
         window.setPreferredSize(new Dimension(width, height));
@@ -103,21 +110,53 @@ public class Core {
         window.setFocusable(false);
         window.setFocusableWindowState(false);
 
+        container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+
         frameLabel = new JLabel("Iteration: 0");
         iterationLabel = new JLabel("Frames: 0");
         xOffset = new JLabel("x Offset: 0");
         yOffset = new JLabel("y Offset: 0");
+        zoom = new JLabel("Zoom: 0");
+        highRes = new JLabel("HighRes: false");
 
-        window.add(frameLabel);
-        window.add(iterationLabel);
-        window.add(xOffset);
-        window.add(yOffset);
+        toggleHR = new JButton("Toggle HR");
+        toggleHR.setName("highRes");
+        toggleHR.addActionListener(new ButtonListener());
+
+        toggleTexture = new JButton("Toggle Texture");
+        toggleTexture.setName("texture");
+        toggleTexture.addActionListener(new ButtonListener());
+
+        container.add(frameLabel);
+        container.add(iterationLabel);
+        container.add(xOffset);
+        container.add(yOffset);
+        container.add(zoom);
+        container.add(highRes);
+        container.add(toggleHR);
+        container.add(toggleTexture);
+
+        window.add(container);
         window.pack();
     }
 
     private static void cleanUp()
     {
-        Window.dispose();
+        GLWindow.dispose();
         window.dispose();
     }
+
+    static class ButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JButton button = (JButton)e.getSource();
+            String name = button.getName();
+            if(name.equals("highRes"))
+                fractal.setHighRes(!fractal.getHighRes());
+            else if(name.equals("texture"))
+                fractal.setTextureBool(!fractal.getTextureBool());
+        }
+    }
 }
+

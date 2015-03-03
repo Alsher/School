@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="AlphaAsShit:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/AlphaAsShit_jar</output-path>
+    <root id="archive" name="AlphaAsShit.jar">
+      <element id="module-output" name="AlphaAsShit" />
+      <element id="directory" name="lib">
+        <element id="directory" name="lwjgl-2.9.1">
+          <element id="dir-copy" path="$PROJECT_DIR$/lib/lwjgl-2.9.1" />
+        </element>
+        <element id="directory" name="SlickUtil">
+          <element id="dir-copy" path="$PROJECT_DIR$/lib/SlickUtil" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

@@ -23,51 +23,34 @@ public class Fractal {
 
     private static final int ZOOMDIV = 50000;
 
+    private boolean highRes = false;
+
     private double xOffset, yOffset, zoom;
     private int iteration, zoomStep;
+    private boolean textureBool = false;
 
     private int vao, vbo, ibo;
 
     private float[] vertices;
     private int[] indices;
 
-    private Shader shader;
-    private Texture texture;
+
+
+    private Shader lowResShader;
+    private Shader highResShader;
 
     public Fractal()
     {
-        xOffset = 0.0f;
-        yOffset = 0.0f;
-        zoom = 200.0f;
-        iteration = 255;
-        zoomStep = 1;
-
-        texture = new Texture("pal");
-
-        shader = new Shader("fractal");
-        shader.setUniformd("xOffset", xOffset);
-        shader.setUniformd("yOffset", yOffset);
-        shader.setUniformd("zoom", zoom);
-        shader.setUniformi("iteration", iteration);
-
-//        shader.setSampler2D("tex", texture.getTextureID());
-
-        shader.setUniformi("height", Window.getWidth());
-        shader.setUniformi("width", Window.getHeight());
-
+        createShaders();
         createMesh();
         initMesh();
     }
 
     public void input() {
-        if (Input.getKey(Input.KEY_A)) {
+        if (Input.getKey(Input.KEY_A))
             xOffset -= XMOVE / zoom;
-
-            System.out.println(xOffset);
-        }
-            if (Input.getKey(Input.KEY_D))
+        if (Input.getKey(Input.KEY_D))
             xOffset += XMOVE / zoom;
-
         if (Input.getKey(Input.KEY_W))
             yOffset += YMOVE / zoom;
         if (Input.getKey(Input.KEY_S))
@@ -78,7 +61,7 @@ public class Fractal {
             zoom += 3 * (zoomStep * zoom) / ZOOMDIV;
         }
         if (Input.getKey(Input.KEY_SUBTRACT)) {
-            if (zoomStep > 0) {
+            if (zoomStep > 0 && zoom > 200) {
                 zoomStep--;
                 zoom -= 3 * (zoomStep * zoom) / ZOOMDIV;
             }
@@ -87,12 +70,20 @@ public class Fractal {
         }
 
         if (Input.getKey(Input.KEY_I))
-            iteration += 1;
+            iteration++;
         if (Input.getKey(Input.KEY_O))
             if(iteration > 3)
-                iteration -= 1;
+                iteration--;
+    }
 
+    public void update()
+    {
         updateUniforms();
+
+        if(highRes)
+            highResShader.bind();
+        else
+            lowResShader.bind();
     }
 
     public void render()
@@ -108,10 +99,17 @@ public class Fractal {
 
     private void updateUniforms()
     {
-        shader.setUniformd("xOffset", xOffset);
-        shader.setUniformd("yOffset", yOffset);
-        shader.setUniformd("zoom", zoom);
-        shader.setUniformi("iteration", iteration);
+        highResShader.setUniformd("xOffset", xOffset);
+        highResShader.setUniformd("yOffset", yOffset);
+        highResShader.setUniformd("zoom", zoom);
+        highResShader.setUniformi("iteration", iteration);
+        highResShader.setUniformi("textureBool", textureBool ? 1 : 0);
+
+        lowResShader.setUniformf("xOffset", (float) xOffset);
+        lowResShader.setUniformf("yOffset", (float) yOffset);
+        lowResShader.setUniformf("zoom", (float) zoom);
+        lowResShader.setUniformi("iteration", iteration);
+        lowResShader.setUniformi("textureBool", textureBool ? 1 : 0);
     }
 
     private void initMesh()
@@ -152,11 +150,40 @@ public class Fractal {
                 -1f, 1f, 0.0f,
                 -1f, -1f, 0.0f,
                 1f, -1f, 0.0f,
-                1f, 1f, 0.0f    };
+                1f, 1f, 0.0f};
 
         indices = new int[]{
                 0, 1, 2,
                 2, 3, 0};
+    }
+
+    private void createShaders()
+    {
+        xOffset = 0.0f;
+        yOffset = 0.0f;
+        zoom = 200.0f;
+        iteration = 255;
+        zoomStep = 1;
+
+        new Texture("pal1");
+
+        lowResShader = new Shader("lowResFractal");
+        lowResShader.setUniformf("xOffset", (float) xOffset);
+        lowResShader.setUniformf("yOffset", (float) yOffset);
+        lowResShader.setUniformf("zoom", (float) zoom);
+        lowResShader.setUniformi("iteration", iteration);
+        lowResShader.setUniformi("textureBool", 0);
+        lowResShader.setUniformi("height", GLWindow.getWidth());
+        lowResShader.setUniformi("width", GLWindow.getHeight());
+
+        highResShader = new Shader("highResFractal");
+        highResShader.setUniformd("xOffset", xOffset);
+        highResShader.setUniformd("yOffset", yOffset);
+        highResShader.setUniformd("zoom", zoom);
+        highResShader.setUniformi("iteration", iteration);
+        highResShader.setUniformi("textureBool", 0);
+        highResShader.setUniformi("height", GLWindow.getWidth());
+        highResShader.setUniformi("width", GLWindow.getHeight());
     }
 
     private void getGLError(String errorMessage)
@@ -171,6 +198,24 @@ public class Fractal {
 
     public double getZoom() {
         return zoom;
+    }
+
+    public boolean getHighRes()
+    {
+        return highRes;
+    }
+    public void setHighRes(boolean highRes)
+    {
+        this.highRes = highRes;
+    }
+
+    public boolean getTextureBool()
+    {
+        return textureBool;
+    }
+    public void setTextureBool(boolean textureBool)
+    {
+        this.textureBool = textureBool;
     }
 
     public int getIteration() {
